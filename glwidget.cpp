@@ -159,38 +159,11 @@ void GLWidget::makeObject()
 {
     //for (int j = 0; j < 6; ++j)
     //    textures[j] = new QOpenGLTexture(QImage(QString(":/images/side%1.png").arg(j + 1)).mirrored());
-    QImage tmpImage = QImage(QString(":/images/side%1.png").arg(1));//.mirrored();
+    QImage tmpImage = QImage(QString(":/images/side%1.png").arg(1)).mirrored();
     unsigned int width_ = tmpImage.width();
     textures[0] = new QOpenGLTexture(tmpImage);
 
 #if 0
-    static const int coords[6][4][3] = {
-        { { +1, -1, -1 }, { -1, -1, -1 }, { -1, +1, -1 }, { +1, +1, -1 } },
-        { { +1, +1, -1 }, { -1, +1, -1 }, { -1, +1, +1 }, { +1, +1, +1 } },
-        { { +1, -1, +1 }, { +1, -1, -1 }, { +1, +1, -1 }, { +1, +1, +1 } },
-        { { -1, -1, -1 }, { -1, -1, +1 }, { -1, +1, +1 }, { -1, +1, -1 } },
-        { { +1, -1, +1 }, { -1, -1, +1 }, { -1, -1, -1 }, { +1, -1, -1 } },
-        { { -1, -1, +1 }, { +1, -1, +1 }, { +1, +1, +1 }, { -1, +1, +1 } }
-    };
-    
-    QVector<GLfloat> vertData;
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            // vertex position
-            vertData.append(0.2 * coords[i][j][0]);
-            vertData.append(0.2 * coords[i][j][1]);
-            vertData.append(0.2 * coords[i][j][2]);
-            // texture coordinate
-            vertData.append(j == 0 || j == 3);
-            vertData.append(j == 0 || j == 1);
-        }
-    }
-
-    vbo.create();
-    vbo.bind();
-    vbo.allocate(vertData.constData(), vertData.count() * sizeof(GLfloat));
-#else
-#if 1
     static const int coords[6][4][3] = {
         { { +1, -1, -1 }, { -1, -1, -1 }, { -1, +1, -1 }, { +1, +1, -1 } },
         { { +1, +1, -1 }, { -1, +1, -1 }, { -1, +1, +1 }, { +1, +1, +1 } },
@@ -216,15 +189,14 @@ void GLWidget::makeObject()
     vbo.allocate(vertData.constData(), vertData.count() * sizeof(GLfloat));
 #else
     static const GLfloat coords[] = {
-        +0.2, -0.2, -0.2, 1, 1,
-        -0.2, -0.2, -0.2, 0, 1,
-        -0.2, +0.2, -0.2, 0, 0,
-        +0.2, +0.2, -0.2, 1, 0,
+        +(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 1, 1,
+        -(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 0, 1,
+        -(((GLfloat)m_width_)/(2*width_)), +(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 0, 0,
+        +(((GLfloat)m_width_)/(2*width_)), +(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 1, 0,
     };
 
     vbo.create();
     vbo.bind();
     vbo.allocate(coords, sizeof(coords));
-#endif
 #endif
 }
