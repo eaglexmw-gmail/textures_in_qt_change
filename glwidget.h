@@ -89,7 +89,7 @@ private:
 
     QColor clearColor;
     QPoint lastPos;
-    QOpenGLTexture *textures[6];
+    QOpenGLTexture *textures;
     QOpenGLShaderProgram *program;
     QOpenGLBuffer vbo;
 };

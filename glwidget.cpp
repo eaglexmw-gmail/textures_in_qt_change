@@ -58,7 +58,8 @@ GLWidget::GLWidget(QWidget *parent)
       clearColor(Qt::black),
       program(0)
 {
-    memset(textures, 0, sizeof(textures));
+    //memset(textures, 0, sizeof(textures));
+    textures = nullptr;
     m_width_ = 250;
 }
 
@@ -66,8 +67,7 @@ GLWidget::~GLWidget()
 {
     makeCurrent();
     vbo.destroy();
-    for (int i = 0; i < 6; ++i)
-        delete textures[i];
+    delete textures;
     delete program;
     doneCurrent();
 }
@@ -115,8 +115,6 @@ void GLWidget::initializeGL()
     program = new QOpenGLShaderProgram;
     program->addShader(vshader);
     program->addShader(fshader);
-    //program->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
-    //program->bindAttributeLocation("texCoord", PROGRAM_TEXCOORD_ATTRIBUTE);
     program->link();
 
     program->bind();
@@ -138,15 +136,8 @@ void GLWidget::paintGL()
     program->setAttributeBuffer(PROGRAM_VERTEX_ATTRIBUTE, GL_FLOAT, 0, 3, 5 * sizeof(GLfloat));
     program->setAttributeBuffer(PROGRAM_TEXCOORD_ATTRIBUTE, GL_FLOAT, 3 * sizeof(GLfloat), 2, 5 * sizeof(GLfloat));
 
-#if 0
-    for (int i = 0; i < 6; ++i) {
-        textures[i]->bind();
-        glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
-    }
-#else
-    textures[0]->bind();
+    textures->bind();
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-#endif
 }
 void GLWidget::resizeGL(int width, int height)
 {
@@ -157,46 +148,19 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::makeObject()
 {
-    //for (int j = 0; j < 6; ++j)
-    //    textures[j] = new QOpenGLTexture(QImage(QString(":/images/side%1.png").arg(j + 1)).mirrored());
     QImage tmpImage = QImage(QString(":/images/side%1.png").arg(1)).mirrored();
     unsigned int width_ = tmpImage.width();
-    textures[0] = new QOpenGLTexture(tmpImage);
+    GLfloat scale = (((GLfloat)m_width_)/(2*width_));
+    textures = new QOpenGLTexture(tmpImage);
 
-#if 0
-    static const int coords[6][4][3] = {
-        { { +1, -1, -1 }, { -1, -1, -1 }, { -1, +1, -1 }, { +1, +1, -1 } },
-        { { +1, +1, -1 }, { -1, +1, -1 }, { -1, +1, +1 }, { +1, +1, +1 } },
-        { { +1, -1, +1 }, { +1, -1, -1 }, { +1, +1, -1 }, { +1, +1, +1 } },
-        { { -1, -1, -1 }, { -1, -1, +1 }, { -1, +1, +1 }, { -1, +1, -1 } },
-        { { +1, -1, +1 }, { -1, -1, +1 }, { -1, -1, -1 }, { +1, -1, -1 } },
-        { { -1, -1, +1 }, { +1, -1, +1 }, { +1, +1, +1 }, { -1, +1, +1 } }
-    };
-
-    QVector<GLfloat> vertData;
-	for (int j = 0; j < 4; ++j) {
-		// vertex position
-		vertData.append((((GLfloat)m_width_)/(2*width_)) * coords[0][j][0]);
-		vertData.append((((GLfloat)m_width_)/(2*width_)) * coords[0][j][1]);
-		vertData.append((((GLfloat)m_width_)/(2*width_)) * coords[0][j][2]);
-		// texture coordinate
-		vertData.append(j == 0 || j == 3);
-		vertData.append(j == 0 || j == 1);
-	}
-
-    vbo.create();
-    vbo.bind();
-    vbo.allocate(vertData.constData(), vertData.count() * sizeof(GLfloat));
-#else
     static const GLfloat coords[] = {
-        +(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 1, 1,
-        -(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 0, 1,
-        -(((GLfloat)m_width_)/(2*width_)), +(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 0, 0,
-        +(((GLfloat)m_width_)/(2*width_)), +(((GLfloat)m_width_)/(2*width_)), -(((GLfloat)m_width_)/(2*width_)), 1, 0,
+        +scale, -scale, -scale, 1, 1,
+        -scale, -scale, -scale, 0, 1,
+        -scale, +scale, -scale, 0, 0,
+        +scale, +scale, -scale, 1, 0,
     };
 
     vbo.create();
     vbo.bind();
     vbo.allocate(coords, sizeof(coords));
-#endif
 }
