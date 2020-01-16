@@ -87,7 +87,7 @@ void GLWidget::initializeGL()
 
     QOpenGLShader *vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
     const char *vsrc = "#version 330 core\n"
-        "layout (location = 0) in highp vec4 vertex;\n"   //"attribute highp vec4 vertex;\n"
+        "layout (location = 0) in highp vec3 vertex;\n"   //"attribute highp vec4 vertex;\n"
         "layout (location = 1) in vec3 aColor;\n"
         "layout (location = 2) in mediump vec4 texCoord;\n" //"attribute mediump vec4 texCoord;\n"
         "out vec3 ourColor;\n"
@@ -95,7 +95,8 @@ void GLWidget::initializeGL()
         "uniform mediump mat4 matrix;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_Position = matrix * vertex;\n"
+        "    vec4 vertex4 = vec4(vertex, 1.0);\n"
+        "    gl_Position = matrix * vertex4;\n"
         "    ourColor = aColor;\n"
         "    texc = texCoord;\n"
         "}\n";
